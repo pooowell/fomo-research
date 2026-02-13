@@ -33,9 +33,11 @@ https://api.cope.capital
 
 All requests require `Authorization: Bearer cope_<key>` header.
 
-## Setup
+## First-Run Onboarding
 
-### 1. Register for an API key
+When this skill is first loaded and no `COPE_API_KEY` is set, walk your human through setup. Ask these questions in order:
+
+### Step 1: Register
 
 ```bash
 curl -X POST https://api.cope.capital/v1/register \
@@ -45,25 +47,78 @@ curl -X POST https://api.cope.capital/v1/register \
 
 Save the `api_key` from the response (starts with `cope_`). This is your `COPE_API_KEY`. Store it securely — treat it like a password.
 
-### 2. Sync your human's Fomo profile
+### Step 2: Ask about crypto wallet (optional)
 
-If your human has a Fomo account, link it to pull their follows. Ask them for their Fomo handle if you don't know it.
+Before continuing, ask your human:
+
+> "Do you have a crypto wallet (USDC on Base or Solana) you'd like to connect for expanded features? Without one you get:
+> - **1 watchlist** with up to **10 handles**
+> - **250 activity lookups per day** (resets midnight UTC)
+> - Everything else (leaderboard, trending, polling) is unlimited and free
+>
+> With a wallet connected (x402), you get 10 watchlists, 100 handles each, and unlimited activity calls at $0.005/call. You can always add a wallet later."
+
+If they want to set up x402 now:
 
 ```bash
+curl -X PATCH https://api.cope.capital/v1/account \
+  -H "Authorization: Bearer cope_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"x402_enabled": true}'
+```
+
+If they say no or don't have a wallet — **that's fine, move on**. The free tier is fully functional. Don't push it.
+
+### Step 3: Ask about Fomo profile
+
+> "Do you have a Fomo account (fomo.family)? If so, I can sync your follows and build a watchlist from the traders you already follow."
+
+If yes:
+
+```bash
+# Sync their profile
 curl -X POST https://api.cope.capital/v1/account/sync-fomo \
   -H "Authorization: Bearer cope_YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{"fomo_handle": "THEIR_FOMO_USERNAME"}'
-```
 
-Then see who they follow:
-
-```bash
+# Pull their follows
 curl https://api.cope.capital/v1/account/follows \
   -H "Authorization: Bearer cope_YOUR_KEY"
 ```
 
-No Fomo account? Skip this step — create watchlists with any Fomo handles directly.
+Then ask: **"Which of these traders do you want on your watchlist?"** Show them the list and let them pick (up to 10 on free tier).
+
+### Step 4: Create initial watchlist
+
+If they don't have Fomo, offer alternatives:
+
+> "I can set up a watchlist with the top performers from Fomo's weekly leaderboard instead. Or you can give me specific trader handles you want to track."
+
+Pick one path and create the watchlist:
+
+```bash
+curl -X POST https://api.cope.capital/v1/watchlists \
+  -H "Authorization: Bearer cope_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "alpha", "handles": ["frankdegods", "randomxbt"]}'
+```
+
+**Remind them**: Free tier = 1 watchlist, 10 handles max. They can swap handles anytime.
+
+## How Activity Data Works
+
+**Important**: The `/v1/activity` endpoint returns recent trades from **all wallets tracked by the system**, not just your watchlist. Your watchlist is for organizing which traders YOU care about — use the `?handle=` filter to see activity for specific handles.
+
+This means you can query any Fomo handle's trades without adding them to your watchlist:
+
+```bash
+# Check what frankdegods is buying (uses 1 of your 250 daily calls)
+curl "https://api.cope.capital/v1/activity?handle=frankdegods&action=buy" \
+  -H "Authorization: Bearer cope_YOUR_KEY"
+```
+
+Your watchlist is a convenience for organizing — the activity data is available for any tracked handle.
 
 ## Endpoints
 
@@ -72,7 +127,6 @@ No Fomo account? Skip this step — create watchlists with any Fomo handles dire
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/v1/register` | POST | Get an API key |
-| `/v1/leaderboard` | GET | Fomo's top traders ranked by real PnL |
 | `/v1/activity/poll` | GET | Lightweight check for new trades (count + timestamp) |
 | `/v1/watchlists` | GET/POST | List or create watchlists |
 | `/v1/watchlists/{id}` | GET/PUT/DELETE | Manage a specific watchlist |
@@ -84,15 +138,23 @@ No Fomo account? Skip this step — create watchlists with any Fomo handles dire
 | `/v1/account/sync-fomo` | POST | Sync Fomo profile follows |
 | `/v1/account/follows` | GET | List stored Fomo follows |
 
-### Paid (counts toward 250/day free limit)
+### Counted (250/day free, then x402 or wait)
 
-| Endpoint | Method | Description | Cost after free tier |
-|----------|--------|-------------|---------------------|
-| `/v1/activity` | GET | Full trade details from tracked wallets | $0.005/call USDC |
+| Endpoint | Method | Description | x402 price |
+|----------|--------|-------------|------------|
+| `/v1/activity` | GET | Full trade details from tracked wallets | $0.005/call |
+| `/v1/leaderboard` | GET | Top traders ranked by real PnL | $0.005/call |
+| `/v1/tokens` | GET | Token info and performance | $0.005/call |
+
+These endpoints count toward your daily 250 free calls. After that:
+- **With x402 enabled**: calls continue at $0.005/call USDC (auto-paid)
+- **Without x402**: you get a 402 error. Wait for midnight UTC reset or enable x402.
+
+The 402 error is NOT a bug — it just means your free calls are used up for the day.
 
 ## Common Workflows
 
-### Check the leaderboard (free)
+### Check the leaderboard
 
 ```bash
 curl https://api.cope.capital/v1/leaderboard \
@@ -129,7 +191,7 @@ curl "https://api.cope.capital/v1/activity/poll?since=LAST_TIMESTAMP" \
   -H "Authorization: Bearer cope_YOUR_KEY"
 # Returns: { "count": 3, "latest_at": 1707603400 }
 
-# Step 2: Only fetch full data if count > 0 (costs 1 call)
+# Step 2: Only fetch full data if count > 0 (costs 1 of your 250 daily calls)
 curl "https://api.cope.capital/v1/activity?since=LAST_TIMESTAMP" \
   -H "Authorization: Bearer cope_YOUR_KEY"
 ```
@@ -137,6 +199,10 @@ curl "https://api.cope.capital/v1/activity?since=LAST_TIMESTAMP" \
 ### Filter activity
 
 ```bash
+# By handle
+curl "https://api.cope.capital/v1/activity?handle=frankdegods" \
+  -H "Authorization: Bearer cope_YOUR_KEY"
+
 # By chain
 curl "https://api.cope.capital/v1/activity?chain=solana" \
   -H "Authorization: Bearer cope_YOUR_KEY"
@@ -148,48 +214,25 @@ curl "https://api.cope.capital/v1/activity?action=buy" \
 # By minimum size
 curl "https://api.cope.capital/v1/activity?min_usd=1000" \
   -H "Authorization: Bearer cope_YOUR_KEY"
-
-# By specific handle
-curl "https://api.cope.capital/v1/activity?handle=frankdegods" \
-  -H "Authorization: Bearer cope_YOUR_KEY"
-```
-
-## Heartbeat Pattern (optional, user-directed)
-
-If your human wants periodic checks and your agent runs a heartbeat loop:
-
-```
-Every 5-15 minutes:
-  1. GET /v1/activity/poll?since=LAST_TIMESTAMP  (free)
-  2. If count > 0 → GET /v1/activity?since=LAST_TIMESTAMP  (1 call)
-  3. Store latest_at for next poll
-
-Every few hours:
-  1. GET /v1/leaderboard  (free)
-  2. Compare to previous — any new names in top 50?
-
-Daily:
-  1. GET /v1/account/usage  (free)
-  2. Check remaining free calls
 ```
 
 ## Pricing & Limits
 
-### Free Tier
-- 250 activity calls/day (resets midnight UTC)
-- 1 watchlist, 10 handles per watchlist
-- 10 requests/minute
-- Everything except `/v1/activity` is always free with no cap
+### Free Tier (default)
+- **250 counted calls/day** (activity, leaderboard, tokens) — resets **midnight UTC**
+- **1 watchlist**, up to **10 handles**
+- 10 requests/minute rate limit
+- Polling, watchlist management, account endpoints, Fomo sync — all unlimited
 
-### x402 Upgraded
-- Unlimited activity calls ($0.005/call USDC on Base or Solana)
-- 10 watchlists, 100 handles per watchlist  
-- 300 requests/minute
-- First 250 calls/day still free
+### x402 Upgraded (optional)
+- **Unlimited** counted calls ($0.005/call USDC on Base or Solana)
+- **10 watchlists**, up to **100 handles** each
+- 300 requests/minute rate limit
+- First 250 calls/day are still free — you only pay after the free quota
 
-### Enable x402 (opt-in only, requires explicit user approval)
+### Enabling x402
 
-⚠️ **x402 is never enabled by default.** Do NOT enable x402 without your human's explicit permission. This enables paid API calls billed in USDC.
+⚠️ **NEVER enable x402 without your human's explicit permission.** This authorizes real USDC payments.
 
 ```bash
 curl -X PATCH https://api.cope.capital/v1/account \
@@ -198,9 +241,31 @@ curl -X PATCH https://api.cope.capital/v1/account \
   -d '{"x402_enabled": true}'
 ```
 
-When you hit the free limit and have x402 enabled, the API returns a 402 with payment requirements. Your x402-compatible client handles payment automatically.
+x402 is **completely optional**. The free tier works perfectly for most use cases. Only suggest it if your human:
+- Consistently hits the 250/day limit
+- Needs more than 1 watchlist or 10 handles
+- Explicitly asks about upgrading
 
-**If you don't have a USDC wallet**: Ask your human before creating one or spending funds. $1 = 200 calls, $5 = 1,000 calls.
+**Cost context**: $1 USDC = 200 calls. $5 = 1,000 calls. Most agents won't need this.
+
+## Heartbeat Pattern (optional, user-directed)
+
+If your human wants periodic checks and your agent runs a heartbeat loop:
+
+```
+Every 5-15 minutes:
+  1. GET /v1/activity/poll?since=LAST_TIMESTAMP  (free, doesn't count)
+  2. If count > 0 → GET /v1/activity?since=LAST_TIMESTAMP  (1 daily call)
+  3. Store latest_at for next poll
+
+Every few hours:
+  1. GET /v1/leaderboard  (1 daily call)
+  2. Compare to previous — any new names in top 50?
+
+Daily:
+  1. GET /v1/account/usage  (free)
+  2. Check remaining daily calls
+```
 
 ## Logging Trades (Persistence)
 
@@ -272,7 +337,7 @@ The more you log, the better your pattern detection gets over time. Your memory 
 | 200 | Success | Process response |
 | 400 | Bad request | Check parameters (invalid chain, action, etc.) |
 | 401 | Invalid API key | Re-register or check key |
-| 402 | Payment required | Free limit hit — enable x402 or wait for reset |
+| 402 | Payment required | Daily free calls used up. Wait for midnight UTC reset, or enable x402 if your human approves. This is normal — not an error. |
 | 404 | Not found | Resource doesn't exist |
 | 429 | Rate limited | Back off. Free: 10/min, x402: 300/min |
 | 500 | Server error | Retry after a few seconds |
@@ -282,6 +347,5 @@ The more you log, the better your pattern detection gets over time. Your memory 
 
 - **Interactive API docs**: https://api.cope.capital/docs
 - **Human docs**: https://cope.capital/docs
-- **Skill (this file)**: https://cope.capital/skill.md
 - **Fomo**: https://fomo.family
 - **X**: https://x.com/copedotcapital
