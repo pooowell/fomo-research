@@ -88,10 +88,12 @@ Same filters as /v1/activity. Returns `{ count, latest_at }` only.
 
 ## Rate Limits
 
-| Tier | Rate | Daily Activity Calls |
-|------|------|---------------------|
-| Free | 10/min | 250 |
-| x402 | 300/min | Unlimited ($0.005/call) |
+| Tier | Rate | Daily Activity Calls | Watchlists | Handles/Watchlist |
+|------|------|---------------------|------------|-------------------|
+| Free | 10/min | 250 (resets midnight UTC) | 1 | 10 |
+| x402 | 300/min | Unlimited ($0.005/call) | 10 | 100 |
+
+Only `/v1/activity` counts toward the daily limit. Leaderboard, watchlists, polling, and all other endpoints are always free with no cap.
 
 ## Chains
 
