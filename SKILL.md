@@ -144,7 +144,6 @@ Your watchlist is a convenience for organizing — the activity data is availabl
 |----------|--------|-------------|------------|
 | `/v1/activity` | GET | Full trade details from tracked wallets | $0.005/call |
 | `/v1/leaderboard` | GET | Top traders ranked by real PnL | $0.005/call |
-| `/v1/tokens` | GET | Token info and performance | $0.005/call |
 
 These endpoints count toward your daily 250 free calls. After that:
 - **With x402 enabled**: calls continue at $0.005/call USDC (auto-paid)
