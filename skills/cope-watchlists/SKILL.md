@@ -4,6 +4,7 @@ description: Manage wallet watchlists for tracking smart money traders by Fomo h
 metadata:
   author: cope-capital
   version: "1.0"
+allowed-tools: ["Bash(curl *)"]
 ---
 
 # Instructions
@@ -31,7 +32,7 @@ curl -X POST https://api.cope.capital/v1/watchlists \
 ### Response
 ```json
 {
-  "id": "wl_abc123",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "name": "Smart Money Whales",
   "created_at": 1707600000,
   "wallets": [
@@ -58,7 +59,7 @@ curl -X GET https://api.cope.capital/v1/watchlists \
 ```json
 [
   {
-    "id": "wl_abc123",
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "Smart Money Whales",
     "wallet_count": 3,
     "created_at": 1707600000
@@ -69,7 +70,7 @@ curl -X GET https://api.cope.capital/v1/watchlists \
 ## Get watchlist details
 
 ```bash
-curl -X GET https://api.cope.capital/v1/watchlists/wl_abc123 \
+curl -X GET https://api.cope.capital/v1/watchlists/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
   -H "Authorization: Bearer cope_<your_api_key>"
 ```
 
@@ -78,7 +79,7 @@ curl -X GET https://api.cope.capital/v1/watchlists/wl_abc123 \
 Add and remove handles, or change the name:
 
 ```bash
-curl -X PUT https://api.cope.capital/v1/watchlists/wl_abc123 \
+curl -X PUT https://api.cope.capital/v1/watchlists/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
   -H "Authorization: Bearer cope_<your_api_key>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -93,7 +94,7 @@ All fields are optional - only include what you want to change.
 ## Delete a watchlist
 
 ```bash
-curl -X DELETE https://api.cope.capital/v1/watchlists/wl_abc123 \
+curl -X DELETE https://api.cope.capital/v1/watchlists/a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
   -H "Authorization: Bearer cope_<your_api_key>"
 ```
 

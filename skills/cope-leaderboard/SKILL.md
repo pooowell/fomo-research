@@ -4,6 +4,7 @@ description: Get ranked leaderboard of top performing wallets by PnL, trading vo
 metadata:
   author: cope-capital
   version: "1.0"
+allowed-tools: ["Bash(curl *)"]
 ---
 
 # Instructions

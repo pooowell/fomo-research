@@ -4,6 +4,7 @@ description: Monitor real-time trading activity from tracked smart money wallets
 metadata:
   author: cope-capital
   version: "1.0"
+allowed-tools: ["Bash(curl *)"]
 ---
 
 # Instructions
@@ -50,7 +51,7 @@ curl -X GET "https://api.cope.capital/v1/activity/poll" \
 ```
 
 ### Filters (all optional)
-- `watchlist_id=wl_abc123` - Filter to specific watchlist
+- `watchlist_id=a1b2c3d4-e5f6-7890-abcd-ef1234567890` - Filter to specific watchlist
 - `chain=solana` - Filter by blockchain (`solana`, `base`, or `all`)
 - `action=buy` - Filter by trade action (`buy`, `sell`, or `all`)
 - `min_usd=1000` - Minimum trade size in USD
@@ -124,8 +125,8 @@ done
 ```
 
 ## Pricing
-- **Poll endpoint** (`/v1/activity/poll`): FREE
-- **Full activity** (`/v1/activity`): $0.005 per call (after 250 free daily calls)
+- **Poll endpoint** (`/v1/activity/poll`): Always FREE (does not count toward daily limit)
+- **Full activity** (`/v1/activity`): Counts toward 250 free daily calls, then $0.005/call via x402
 
 ## Notes
 - Activity is updated every 60 seconds from the underlying data source

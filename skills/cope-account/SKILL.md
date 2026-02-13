@@ -4,6 +4,7 @@ description: Manage your Cope Capital account settings, view usage statistics, c
 metadata:
   author: cope-capital
   version: "1.0"
+allowed-tools: ["Bash(curl *)"]
 ---
 
 # Instructions
@@ -74,8 +75,8 @@ curl -X PATCH https://api.cope.capital/v1/account \
 ```
 
 ### Supported payment addresses
-- **Base USDC**: Ethereum-compatible address (0x...)
-- **Solana USDC**: Solana wallet address
+- Ethereum-compatible address format: `0x` + 40 hex characters
+- This enables x402 payments on both Base and Solana chains
 
 ### Response
 ```json

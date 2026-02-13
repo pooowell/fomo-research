@@ -4,6 +4,7 @@ description: Set up x402 payments to unlock unlimited API access. Configure USDC
 metadata:
   author: cope-capital
   version: "1.0"
+allowed-tools: ["Bash(curl *)"]
 ---
 
 # Instructions
@@ -47,9 +48,9 @@ curl -X PATCH https://api.cope.capital/v1/account \
   }'
 ```
 
-### Supported chains and tokens
-- **Base USDC**: Native USDC on Base mainnet
-- **Solana USDC**: USDC on Solana mainnet
+### Payment address format
+- Must be Ethereum-compatible: `0x` + 40 hex characters
+- This enables x402 payments on both **Base USDC** and **Solana USDC**
 
 ### Response
 ```json
@@ -108,11 +109,10 @@ curl -X GET https://api.cope.capital/v1/activity \
 |----------|-----------|-----------|
 | Registration, account management | Always free | - |
 | Watchlist CRUD | Always free | - |
-| Fomo sync | Always free | - |
-| Activity polling (`/v1/activity/poll`) | Counts toward 250 | $0.005 |
-| Full activity (`/v1/activity`) | Counts toward 250 | $0.005 |
-| Leaderboard | Counts toward 250 | $0.005 |
-| Token lookup | Counts toward 250 | $0.01 |
+| Fomo sync, follows | Always free | - |
+| Activity polling (`/v1/activity/poll`) | Always free | - |
+| Full activity (`/v1/activity`) | Counts toward 250/day | $0.005 |
+| Leaderboard (`/v1/leaderboard`) | Counts toward 250/day | $0.005 |
 
 ## View your payment history
 

@@ -4,6 +4,7 @@ description: Register for a Cope Capital API key to access smart money wallet in
 metadata:
   author: cope-capital
   version: "1.0"
+allowed-tools: ["Bash(curl *)"]
 ---
 
 # Instructions

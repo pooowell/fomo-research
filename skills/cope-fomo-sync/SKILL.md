@@ -4,6 +4,7 @@ description: Link your Fomo profile to automatically sync your follows and track
 metadata:
   author: cope-capital
   version: "1.0"
+allowed-tools: ["Bash(curl *)"]
 ---
 
 # Instructions
