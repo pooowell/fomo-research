@@ -1,5 +1,13 @@
 # Changelog — fomo-research skill
 
+## [0.3.0] - 2026-02-21
+### Added
+- **Traders search** (`GET /v1/traders/search`) — compound filtering by win rate, PnL, trades, chain
+- **Handle positions** (`GET /v1/handle/:handle/positions`) — computed open/closed positions from activity data
+- **Handle theses** (`GET /v1/handle/:handle/theses`) — all Fomo thesis comments by a specific trader
+- New workflow examples: elite trader search, position checking, trader thesis lookup
+- Updated API reference with response schemas and query params for all v0.3.0 endpoints
+
 ## [0.2.0] - 2026-02-18
 ### Added
 - **Convergence events** (`GET /v1/convergence`) — real-time detection when 2+ elite wallets buy the same token, with ATH tracking

@@ -180,6 +180,9 @@ Your watchlist is a convenience for organizing — the activity data is availabl
 | `/v1/handle/{handle}/stats` | GET | Aggregated trader stats (PnL, win rate, top trades) |
 | `/v1/tokens/{mint}/thesis` | GET | Buy theses + sentiment for a token |
 | `/v1/convergence` | GET | Convergence events (2+ wallets buying same token) |
+| `/v1/traders/search` | GET | Search traders by win rate, PnL, trades |
+| `/v1/handle/{handle}/positions` | GET | Open/closed positions for a trader |
+| `/v1/handle/{handle}/theses` | GET | All theses by a specific trader |
 | `/v1/account` | GET/PATCH | Account info and settings |
 | `/v1/account/usage` | GET | Usage statistics |
 | `/v1/account/payments` | GET | Payment history |
@@ -242,6 +245,41 @@ curl "https://api.cope.capital/v1/activity/poll?since=LAST_TIMESTAMP" \
 curl "https://api.cope.capital/v1/activity?since=LAST_TIMESTAMP" \
   -H "Authorization: Bearer cope_YOUR_KEY"
 ```
+
+### Search for elite traders
+
+```bash
+# Find traders with >75% win rate and 10+ trades
+curl "https://api.cope.capital/v1/traders/search?min_win_rate=75&min_trades=10&sort_by=win_rate" \
+  -H "Authorization: Bearer cope_YOUR_KEY"
+
+# Top PnL traders on Solana
+curl "https://api.cope.capital/v1/traders/search?sort_by=pnl&chain=solana&limit=20" \
+  -H "Authorization: Bearer cope_YOUR_KEY"
+```
+
+### Check a trader's current positions
+
+```bash
+# Open positions only
+curl "https://api.cope.capital/v1/handle/frankdegods/positions?status=open" \
+  -H "Authorization: Bearer cope_YOUR_KEY"
+
+# All positions (open + closed)
+curl "https://api.cope.capital/v1/handle/frankdegods/positions" \
+  -H "Authorization: Bearer cope_YOUR_KEY"
+```
+
+Shows computed positions from activity data — what they're holding vs exited, with cost basis and net USD.
+
+### Get a trader's theses
+
+```bash
+curl "https://api.cope.capital/v1/handle/frankdegods/theses" \
+  -H "Authorization: Bearer cope_YOUR_KEY"
+```
+
+Returns all Fomo thesis comments by this trader across their recent tokens. Great for understanding their reasoning.
 
 ### Check convergence events
 

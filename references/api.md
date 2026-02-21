@@ -1,4 +1,4 @@
-# Cope Capital API Reference (v0.2.0)
+# Cope Capital API Reference (v0.3.0)
 
 Full interactive docs: https://api.cope.capital/docs
 
@@ -137,6 +137,69 @@ Authorization: Bearer cope_YOUR_KEY
 }
 ```
 
+### Traders Search Result (NEW in v0.3.0)
+```json
+{
+  "traders": [
+    {
+      "handle": "frankdegods",
+      "address": "A5SEXY...",
+      "chain": "solana",
+      "win_rate": 0.75,
+      "total_trades": 142,
+      "realized_pnl": 45000.00,
+      "total_volume": 280000.00
+    }
+  ],
+  "count": 15
+}
+```
+
+### Handle Positions (NEW in v0.3.0)
+```json
+{
+  "handle": "frankdegods",
+  "positions": [
+    {
+      "token_mint": "DezX7iJ4...",
+      "token_symbol": "BONK",
+      "chain": "solana",
+      "status": "open",
+      "total_bought_usd": 5000.00,
+      "total_sold_usd": 2000.00,
+      "net_usd": -3000.00,
+      "buy_count": 3,
+      "sell_count": 1,
+      "first_buy_at": 1770800000,
+      "last_activity_at": 1771200000
+    }
+  ]
+}
+```
+
+### Handle Theses (NEW in v0.3.0)
+```json
+{
+  "handle": "frankdegods",
+  "theses": [
+    {
+      "token_mint": "DezX7iJ4...",
+      "token_symbol": "BONK",
+      "chain": "solana",
+      "comment": "This is the play for the cycle",
+      "created_at": "2026-02-19T00:12:06.007Z",
+      "likes": 5,
+      "replies": 2,
+      "position": {
+        "usd_value": 5000.00,
+        "unrealized_pnl_pct": 25.0,
+        "is_closed": false
+      }
+    }
+  ]
+}
+```
+
 ## Query Parameters
 
 ### GET /v1/activity
@@ -187,6 +250,26 @@ No query params. Returns full stats for the given Fomo handle.
 | since | number | — | Unix ms timestamp |
 | chain | string | all | `solana` or `base` |
 | limit | number | 20 | Max results |
+
+### GET /v1/traders/search (NEW in v0.3.0)
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| min_win_rate | number | — | Minimum win rate (0-100) |
+| max_win_rate | number | — | Maximum win rate (0-100) |
+| min_trades | number | — | Minimum total trades |
+| min_pnl | number | — | Minimum realized PnL in USD |
+| sort_by | string | win_rate | `win_rate`, `pnl`, `trades`, `volume` |
+| chain | string | all | `solana` or `base` |
+| limit | number | 50 | Max results (1-100) |
+
+### GET /v1/handle/:handle/positions (NEW in v0.3.0)
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| status | string | all | `open`, `closed`, or `all` |
+| chain | string | all | `solana` or `base` |
+
+### GET /v1/handle/:handle/theses (NEW in v0.3.0)
+No query params. Returns all theses by the given handle (up to 20 recent tokens).
 
 ## Rate Limits
 
